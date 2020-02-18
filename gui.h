@@ -16,7 +16,7 @@ class GUI : public QWidget
     Q_OBJECT
 
 public:
-    GUI(QWidget *parent = 0);
+    GUI(QWidget *parent = nullptr);
     ~GUI();
 
     void init();

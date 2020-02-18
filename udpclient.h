@@ -11,6 +11,8 @@ class UdpClient : public QUdpSocket
 public:
     explicit UdpClient(const QString &host, const quint16 port, QUdpSocket *parent = nullptr);
 
+    void connectToServer();
+
 private slots:
     void onConnected();
     void onDisconnected();

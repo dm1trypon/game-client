@@ -20,14 +20,14 @@ void Manager::onMessage(const QByteArray data) {
     }
 
     if (!dataJsDoc.isObject()) {
-        qCWarning(m_lc) << "Is not object";
+        qCWarning(m_lc) << "Is not an object";
         return;
     }
 
     const QJsonObject dataJsObj = dataJsDoc.object();
 
     if (!dataJsObj.contains("method")) {
-        qCWarning(m_lc) << "Missing filed 'method'";
+        qCWarning(m_lc) << "Missing field 'method'";
         return;
     }
 
@@ -35,13 +35,51 @@ void Manager::onMessage(const QByteArray data) {
 
     if (method == "init_tcp") {
          m_udpClient = new UdpClient(m_host, m_udpPort);
+
          connect(m_udpClient, &UdpClient::errorToGui, this, &Manager::onError);
          connect(m_udpClient, &UdpClient::connectedToServer, this, &Manager::onUdpServerConnected);
+
+         m_udpClient->connectToServer();
     }
 }
 
+void Manager::toMousePlayer(const QPair<int, int> position, bool isClicked) {
+    const QJsonObject keyboardJsObj {
+        {"method", "mouse"},
+        {"nickname", m_nickname},
+        {"position", QJsonObject {
+                {"x", position.first},
+                {"y", position.second}
+            }
+        },
+        {"is_clicked", isClicked}
+    };
+
+    const QJsonDocument keyboardJsDoc(keyboardJsObj);
+    const QString data(keyboardJsDoc.toJson(QJsonDocument::Compact) + "\n");
+
+    qCInfo(m_lc) << QString("TCP SENT: %1").arg(data);
+
+    m_tcpClient->write(data.toUtf8());
+}
+
+void Manager::toKeyboardPlayer(const QJsonArray keys) {
+    const QJsonObject keyboardJsObj {
+        {"method", "keyboard"},
+        {"nickname", m_nickname},
+        {"keys", keys}
+    };
+
+    const QJsonDocument keyboardJsDoc(keyboardJsObj);
+    const QString data(keyboardJsDoc.toJson(QJsonDocument::Compact) + "\n");
+
+    qCInfo(m_lc) << QString("TCP SENT: %1").arg(data);
+
+    m_tcpClient->write(data.toUtf8());
+}
+
 void Manager::toVerifyUdp(const QString &nickname) {
-    QJsonObject verifyJsObj {
+    const QJsonObject verifyJsObj {
         {"method", "init_udp"},
         {"nickname", nickname}
     };
@@ -57,7 +95,9 @@ void Manager::toVerifyUdp(const QString &nickname) {
 }
 
 void Manager::toVerifyTcp(const QString &nickname, const QStringList resolution) {
-    QJsonObject verifyJsObj {
+    m_nickname = nickname;
+
+    const QJsonObject verifyJsObj {
         {"method", "init_tcp"},
         {"nickname", nickname},
         {"resolution", QJsonObject {
@@ -92,7 +132,6 @@ void Manager::onError(const QString &err) {
 }
 
 void Manager::onUdpServerConnected() {
-    qDebug() << "onUdpServerConnected";
     emit connectedUdp();
 }
 

@@ -20,7 +20,8 @@ void GUI::onError(const QString &error) {
 }
 
 void GUI::onTcpServerConnected() {
-    const QString &resolution = m_cbResolution->itemData(m_cbResolution->currentIndex()).toString();
+    const QString &resolution = m_cbResolution->currentText();
+    qDebug() << resolution;
     const QStringList lResolution = resolution.split("x");
 
     m_manager.toVerifyTcp(m_leNickname->text(), lResolution);
@@ -74,7 +75,7 @@ void GUI::init() {
 
     m_cbResolution = new QComboBox();
 
-    QStringList resolutions = QStringList {
+    const QStringList resolutions = {
         "800x600",
         "1024x600",
         "1024x768",

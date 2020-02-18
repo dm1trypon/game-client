@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,10 +27,12 @@ SOURCES += main.cpp \
     gui.cpp \
     tcpclient.cpp \
     udpclient.cpp \
-    manager.cpp
+    manager.cpp \
+    gamegui.cpp
 
 HEADERS  += \
     gui.h \
     tcpclient.h \
     udpclient.h \
-    manager.h
+    manager.h \
+    gamegui.h
