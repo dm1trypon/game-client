@@ -1,7 +1,8 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <manager.h>
+#include "manager.h"
+#include "gamegui.h"
 
 #include <QWidget>
 #include <QLineEdit>
@@ -25,8 +26,12 @@ private slots:
     void onError(const QString &error);
     void onTcpServerConnected();
     void onUdpServerConnected();
+
 private:
+    QStringList m_gameResolution;
+
     Manager m_manager;
+    GameGUI *m_gameGUI = nullptr;
 
     QGridLayout *m_mainLayout = nullptr;
     QLineEdit *m_leNickname = nullptr;
@@ -42,6 +47,7 @@ private:
     QPushButton *m_bConnect = nullptr;
     QGroupBox *m_gbTCP = nullptr;
     QGroupBox *m_gbUDP = nullptr;
+    void showGameGUI();
 };
 
 #endif // WIDGET_H

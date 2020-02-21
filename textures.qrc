@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>textures/spaceship.png</file>
+        <file>textures/player.png</file>
+    </qresource>
+</RCC>

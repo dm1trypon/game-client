@@ -19,6 +19,7 @@ private slots:
     void onReadyRead();
 
 signals:
+    void message(const QString &);
     void errorToGui(const QString &);
     void connectedToServer();
 

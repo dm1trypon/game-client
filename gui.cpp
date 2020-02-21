@@ -21,16 +21,22 @@ void GUI::onError(const QString &error) {
 
 void GUI::onTcpServerConnected() {
     const QString &resolution = m_cbResolution->currentText();
-    qDebug() << resolution;
-    const QStringList lResolution = resolution.split("x");
-
-    m_manager.toVerifyTcp(m_leNickname->text(), lResolution);
+    m_gameResolution = resolution.split("x");
+    m_manager.toVerifyTcp(m_leNickname->text(), m_gameResolution);
 }
 
 void GUI::onUdpServerConnected() {
     m_manager.toVerifyUdp(m_leNickname->text());
+    showGameGUI();
 }
 
+void GUI::showGameGUI() {
+    m_gameGUI = new GameGUI;
+    connect(&m_manager, &Manager::nextFrame, m_gameGUI, &GameGUI::nextFrame);
+    connect(m_gameGUI, &GameGUI::keyboard, &m_manager, &Manager::toKeyboard);
+    m_gameGUI->resize(m_gameResolution.first().toInt(), m_gameResolution.last().toInt());
+    m_gameGUI->show();
+}
 
 void GUI::onConnect() {
     const QString &host = m_leHost->text();

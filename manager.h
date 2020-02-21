@@ -3,6 +3,7 @@
 
 #include "tcpclient.h"
 #include "udpclient.h"
+#include "core.h"
 
 #include <QObject>
 #include <QJsonArray>
@@ -17,28 +18,37 @@ public:
     void onConnect(const QString &host, const quint16 udpPort, const quint16 tcpPort);
     void toVerifyTcp(const QString &nickname, const QStringList resolution);
     void toVerifyUdp(const QString &nickname);
-    void toKeyboardPlayer(const QJsonArray keys);
     void toMousePlayer(const QPair<int, int> position, bool isClicked);
 private:
     TcpClient *m_tcpClient = nullptr;
     UdpClient *m_udpClient = nullptr;
+    Core *m_core = nullptr;
 
     QString m_nickname;
     QString m_host;
     quint16 m_udpPort;
     quint16 m_tcpPort;
 
+    QMap<QString, QString> m_texPaths;
+
+    QStringList m_sides;
+
     QLoggingCategory m_lc;
 signals:
+    void nextFrame(GameObjects);
     void error(const QString &);
     void connectedTcp();
     void connectedUdp();
 
+public slots:
+    void toKeyboard(const QString &side, bool isPressed);
+
 private slots:
     void onTcpServerConnected();
-    void onError(const QString &err);
-    void onMessage(const QByteArray data);
     void onUdpServerConnected();
+    void onError(const QString &err);
+    void onTcpMessage(const QByteArray data);
+    void onUdpMessage(const QString msg);
 };
 
 #endif // MANAGER_H

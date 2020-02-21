@@ -28,11 +28,19 @@ SOURCES += main.cpp \
     tcpclient.cpp \
     udpclient.cpp \
     manager.cpp \
-    gamegui.cpp
+    gamegui.cpp \
+    sceneobjects.cpp \
+    core.cpp
 
 HEADERS  += \
     gui.h \
     tcpclient.h \
     udpclient.h \
     manager.h \
-    gamegui.h
+    gamegui.h \
+    sceneobjects.h \
+    consts.h \
+    core.h
+
+RESOURCES += \
+    textures.qrc

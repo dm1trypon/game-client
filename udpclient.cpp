@@ -21,9 +21,9 @@ void UdpClient::connectToServer() {
             const QString &errMsg = QString("Error in connection to host: %1:%2").arg(m_host).arg(QString::number(m_port));
             qCWarning(m_lc) << errMsg;
             emit errorToGui(errMsg);
-            this->deleteLater();
+            deleteLater();
         });
-    this->connectToHost(m_host, m_port);
+    connectToHost(m_host, m_port);
 }
 
 void UdpClient::onConnected() {
@@ -36,12 +36,13 @@ void UdpClient::onDisconnected() {
 }
 
 void UdpClient::onReadyRead() {
-    while (this->hasPendingDatagrams()) {
+    while (hasPendingDatagrams()) {
         QByteArray datagram;
-        const int theSize = this->pendingDatagramSize();
+        const int theSize = pendingDatagramSize();
         datagram.resize(theSize);
-        this->readDatagram(datagram.data(), datagram.size());
-        QString data((const QByteArray&) datagram);
-        qCInfo(m_lc) << QString("Recieved data: %1").arg(data);
+        readDatagram(datagram.data(), datagram.size());
+        QString msg((const QByteArray&) datagram);
+        emit message(msg);
+//        qCInfo(m_lc) << QString("Recieved data: %1").arg(data);
     }
 }

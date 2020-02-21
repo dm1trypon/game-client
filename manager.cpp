@@ -8,10 +8,12 @@ Manager::Manager(QObject *parent) :
     QObject(parent),
     m_lc("[Manager]")
 {
-
+    m_texPaths.insert("player", ":/textures/player.png");
+    m_texPaths.insert("enemy_player", ":/textures/enemy-player.png");
+    m_texPaths.insert("bullet", ":/textures/bullet.png");
 }
 
-void Manager::onMessage(const QByteArray data) {
+void Manager::onTcpMessage(const QByteArray data) {
     const QJsonDocument dataJsDoc = QJsonDocument::fromJson(data);
 
     if (dataJsDoc.isNull()) {
@@ -38,9 +40,31 @@ void Manager::onMessage(const QByteArray data) {
 
          connect(m_udpClient, &UdpClient::errorToGui, this, &Manager::onError);
          connect(m_udpClient, &UdpClient::connectedToServer, this, &Manager::onUdpServerConnected);
+         connect(m_udpClient, &UdpClient::message, this, &Manager::onUdpMessage);
 
          m_udpClient->connectToServer();
     }
+}
+
+void Manager::onUdpMessage(const QString msg) {
+    const QJsonDocument dataJsDoc = QJsonDocument::fromJson(msg.toUtf8());
+
+    if (dataJsDoc.isNull()) {
+        qCWarning(m_lc) << "Invalid json";
+        return;
+    }
+
+    if (!dataJsDoc.isObject()) {
+        qCWarning(m_lc) << "Is not an object";
+        return;
+    }
+
+    if (!m_core) {
+        qCCritical(m_lc) << "Core is not init yet";
+        return;
+    }
+
+    m_core->onNextMessage(dataJsDoc.object());
 }
 
 void Manager::toMousePlayer(const QPair<int, int> position, bool isClicked) {
@@ -63,11 +87,25 @@ void Manager::toMousePlayer(const QPair<int, int> position, bool isClicked) {
     m_tcpClient->write(data.toUtf8());
 }
 
-void Manager::toKeyboardPlayer(const QJsonArray keys) {
+void Manager::toKeyboard(const QString &side, bool isPressed) {
+    if (isPressed && !m_sides.contains(side)) {
+        m_sides.append(side);
+    } else if (m_sides.contains(side) && !isPressed) {
+        while (m_sides.removeOne(side)) {}
+    }
+
+    QJsonArray keysArr;
+
+    if (!m_sides.isEmpty()) {
+        keysArr = QJsonArray::fromStringList(m_sides);
+    }
+
+    qDebug() << keysArr << m_sides;
+
     const QJsonObject keyboardJsObj {
         {"method", "keyboard"},
         {"nickname", m_nickname},
-        {"keys", keys}
+        {"keys", keysArr}
     };
 
     const QJsonDocument keyboardJsDoc(keyboardJsObj);
@@ -123,7 +161,7 @@ void Manager::onConnect(const QString &host, const quint16 udpPort, const quint1
     m_tcpClient = new TcpClient(host, tcpPort);
 
     connect(m_tcpClient, &TcpClient::connectedToServer, this, &Manager::onTcpServerConnected);
-    connect(m_tcpClient, &TcpClient::message, this, &Manager::onMessage);
+    connect(m_tcpClient, &TcpClient::message, this, &Manager::onTcpMessage);
     connect(m_tcpClient, &TcpClient::errorToGui, this, &Manager::onError);
 }
 
@@ -132,6 +170,8 @@ void Manager::onError(const QString &err) {
 }
 
 void Manager::onUdpServerConnected() {
+    m_core = new Core;
+    connect(m_core, &Core::nextFrame, this, &Manager::nextFrame);
     emit connectedUdp();
 }
 

@@ -15,9 +15,9 @@ TcpClient::TcpClient(const QString host, const quint16 port, QTcpSocket *parent)
             const QString &errMsg = QString("Error in connection to host: %1:%2").arg(host).arg(QString::number(port));
             qCWarning(m_lc) << errMsg;
             emit errorToGui(errMsg);
-            this->deleteLater();
+            deleteLater();
         });
-    this->connectToHost(host, port);
+    connectToHost(host, port);
 }
 
 void TcpClient::onConnected() {
@@ -30,7 +30,7 @@ void TcpClient::onDisconnected() {
 }
 
 void TcpClient::onReadyRead() {
-    m_recvBuf += this->readAll();
+    m_recvBuf += readAll();
     int n;
 
     while ((n = m_recvBuf.indexOf('\n')) >= 0) {
