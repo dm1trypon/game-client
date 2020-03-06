@@ -7,7 +7,7 @@ Core::Core(QObject *parent) :
     m_lc("[Core]")
 {
     m_tmrNextFrame = new QTimer;
-    connect(m_tmrNextFrame, &QTimer::timeout, this, &Core::onNextFrame);
+//    connect(m_tmrNextFrame, &QTimer::timeout, this, &Core::onNextFrame);
     m_tmrNextFrame->start(TMR_FPS);
 }
 
@@ -31,11 +31,18 @@ void Core::onNextMessage(const QJsonObject gameDataObj) {
     const QJsonArray bulletsArr = gameDataObj.value("bullets").toArray();
     const QList<Bullet> bulletsList = makeObjectsList(bulletsArr, "bullets", Bullet{});
 
+    QJsonArray sceneArr;
+    sceneArr.append(gameDataObj.value("scene").toObject());
+
+    const QList<Scene> sceneList = makeObjectsList(sceneArr, "scene", Scene{});
+
     GameObjects gameObjects = {
         .players = playersList,
-        .bullets = bulletsList
+        .bullets = bulletsList,
+        .scene = sceneList
     };
 
+    emit nextFrame(m_sceneObjects.getGameObjects());
     m_sceneObjects.setGameObjects(gameObjects);
 }
 

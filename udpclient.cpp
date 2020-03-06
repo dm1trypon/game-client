@@ -8,7 +8,6 @@ UdpClient::UdpClient(const QString &host, const quint16 port, QUdpSocket *parent
     m_host(host),
     m_port(port)
 {
-
 }
 
 void UdpClient::connectToServer() {
@@ -43,6 +42,6 @@ void UdpClient::onReadyRead() {
         readDatagram(datagram.data(), datagram.size());
         QString msg((const QByteArray&) datagram);
         emit message(msg);
-//        qCInfo(m_lc) << QString("Recieved data: %1").arg(data);
+//        qCInfo(m_lc) << QString("Recieved data: %1").arg(msg);
     }
 }

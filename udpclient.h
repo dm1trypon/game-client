@@ -2,6 +2,7 @@
 #define UPDCLIENT_H
 
 #include <QObject>
+#include <QTimer>
 #include <QUdpSocket>
 #include <QLoggingCategory>
 

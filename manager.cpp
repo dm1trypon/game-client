@@ -84,7 +84,19 @@ void Manager::toMousePlayer(const QPair<int, int> position, bool isClicked) {
 
     qCInfo(m_lc) << QString("TCP SENT: %1").arg(data);
 
-    m_tcpClient->write(data.toUtf8());
+    if (m_tcpClient->write(data.toUtf8()) < 0) {
+        qCWarning(m_lc) << "TCP SENT error";
+    }
+
+    qCInfo(m_lc) << "Sended";
+}
+
+void Manager::onMouseClick(bool isClick) {
+
+}
+
+void Manager::onMouseMove(const QPoint pos) {
+
 }
 
 void Manager::toKeyboard(const QString &side, bool isPressed) {
@@ -100,8 +112,6 @@ void Manager::toKeyboard(const QString &side, bool isPressed) {
         keysArr = QJsonArray::fromStringList(m_sides);
     }
 
-    qDebug() << keysArr << m_sides;
-
     const QJsonObject keyboardJsObj {
         {"method", "keyboard"},
         {"nickname", m_nickname},
@@ -111,9 +121,7 @@ void Manager::toKeyboard(const QString &side, bool isPressed) {
     const QJsonDocument keyboardJsDoc(keyboardJsObj);
     const QString data(keyboardJsDoc.toJson(QJsonDocument::Compact) + "\n");
 
-    qCInfo(m_lc) << QString("TCP SENT: %1").arg(data);
-
-    m_tcpClient->write(data.toUtf8());
+    m_tcpClient->addToQueue(data);
 }
 
 void Manager::toVerifyUdp(const QString &nickname) {
@@ -139,8 +147,8 @@ void Manager::toVerifyTcp(const QString &nickname, const QStringList resolution)
         {"method", "init_tcp"},
         {"nickname", nickname},
         {"resolution", QJsonObject {
-                {"width", resolution.first()},
-                {"height", resolution.last()}
+                {"width", resolution.first().toInt()},
+                {"height", resolution.last().toInt()}
             }
         }
     };

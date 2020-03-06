@@ -29,6 +29,8 @@ signals:
 private:
     SceneObjects m_sceneObjects;
 
+    bool m_isSkip = false;
+
     QLoggingCategory m_lc;
     QTimer *m_tmrNextFrame = nullptr;
 

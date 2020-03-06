@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>textures/spaceship.png</file>
         <file>textures/player.png</file>
+        <file>textures/scene.png</file>
     </qresource>
 </RCC>

@@ -43,6 +43,8 @@ signals:
 public slots:
     void toKeyboard(const QString &side, bool isPressed);
 
+    void onMouseClick(bool isClick);
+    void onMouseMove(const QPoint pos);
 private slots:
     void onTcpServerConnected();
     void onUdpServerConnected();

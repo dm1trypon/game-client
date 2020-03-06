@@ -34,6 +34,8 @@ void GUI::showGameGUI() {
     m_gameGUI = new GameGUI;
     connect(&m_manager, &Manager::nextFrame, m_gameGUI, &GameGUI::nextFrame);
     connect(m_gameGUI, &GameGUI::keyboard, &m_manager, &Manager::toKeyboard);
+    connect(m_gameGUI, &GameGUI::mouseClick, &m_manager, &Manager::onMouseClick);
+    connect(m_gameGUI, &GameGUI::mouseMove, &m_manager, &Manager::onMouseMove);
     m_gameGUI->resize(m_gameResolution.first().toInt(), m_gameResolution.last().toInt());
     m_gameGUI->show();
 }

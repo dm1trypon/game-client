@@ -1,5 +1,7 @@
 #include "tcpclient.h"
 
+#define TIME_SEND 10
+
 TcpClient::TcpClient(const QString host, const quint16 port, QTcpSocket *parent) :
     QTcpSocket(parent),
     m_lc("[TcpClient]"),
@@ -17,11 +19,38 @@ TcpClient::TcpClient(const QString host, const quint16 port, QTcpSocket *parent)
             emit errorToGui(errMsg);
             deleteLater();
         });
+    m_tSender = new QTimer;
+    connect(m_tSender, &QTimer::timeout, this, &TcpClient::onSend);
     connectToHost(host, port);
+}
+
+void TcpClient::addToQueue(const QString &data) {
+    m_dispatchQueue.append(data);
+}
+
+void TcpClient::onSend() {
+    if (m_dispatchQueue.isEmpty()) {
+        return;
+    }
+
+    const QString &msg = m_dispatchQueue.first();
+    qCInfo(m_lc) << QString("SENT: %1").arg(msg);
+
+    if (write(msg.toUtf8()) < 0) {
+        qCWarning(m_lc) << QString("Error sending data to server: %1").arg(msg);
+        return;
+    }
+
+    m_dispatchQueue.removeFirst();
 }
 
 void TcpClient::onConnected() {
     qCInfo(m_lc) << "Connected";
+
+    if (!m_tSender->isActive()) {
+        m_tSender->start(TIME_SEND);
+    }
+
     emit connectedToServer();
 }
 
